@@ -1,0 +1,6 @@
+@ClaimsEngine.Ingestion.Api_HostAddress = http://localhost:5158
+
+GET {{ClaimsEngine.Ingestion.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
