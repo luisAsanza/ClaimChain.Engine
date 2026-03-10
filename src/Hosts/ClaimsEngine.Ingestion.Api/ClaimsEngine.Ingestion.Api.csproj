@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ClaimsEngine.Application\ClaimsEngine.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ClaimsEngine.Infra.Data\ClaimsEngine.Infra.Data.csproj" />
   </ItemGroup>
 
 </Project>
