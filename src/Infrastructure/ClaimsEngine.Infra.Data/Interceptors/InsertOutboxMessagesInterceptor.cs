@@ -1,5 +1,6 @@
 using ClaimsEngine.Domain.SeedWork;
 using ClaimsEngine.Infra.Data.Outbox;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ClaimsEngine.Infra.Data.Interceptors
@@ -12,41 +13,54 @@ namespace ClaimsEngine.Infra.Data.Interceptors
             CancellationToken cancellationToken = default)
         {
             var context = eventData.Context;
-            if(context == null) 
+            if (context == null)
                 return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-            // 1. Find all AggregateRoots with domain events
+            InsertOutboxMessages(context);
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        public override InterceptionResult<int> SavingChanges(
+            DbContextEventData eventData,
+            InterceptionResult<int> result)
+        {
+            var context = eventData.Context;
+            if (context == null)
+                return base.SavingChanges(eventData, result);
+
+            InsertOutboxMessages(context);
+            return base.SavingChanges(eventData, result);
+        }
+
+        private static void InsertOutboxMessages(DbContext? context)
+        {
+            if (context == null)
+                return;
+
             var aggregates = context.ChangeTracker
                 .Entries<AggregateRoot>()
-                .Where(a => a.Entity.DomainEvents.Any())
+                .Where(a => a.Entity.DomainEvents.Count > 0)
                 .Select(a => a.Entity)
                 .ToList();
 
-            // 2. Extract and serialize the events
             var events = aggregates
                 .SelectMany(a =>
                 {
                     var events = a.DomainEvents.ToList();
-                    a.ClearDomainEvents(); // Clear events after extracting
+                    a.ClearDomainEvents();
                     return events;
                 })
                 .ToList();
 
-            // 3. Create OutboxMessage entities and add to context
-            var outboxMessages = events.Select(e =>
+            var outboxMessages = events.Select(e => new OutboxMessage()
             {
-                return new OutboxMessage()
-                {
-                    Id = Guid.NewGuid(),
-                    Type = e.GetType().Name ?? string.Empty,
-                    Content = System.Text.Json.JsonSerializer.Serialize(e),
-                    CreatedAt = e.OccurredOn
-                };
+                Id = Guid.NewGuid(),
+                Type = e.GetType().Name ?? string.Empty,
+                Content = System.Text.Json.JsonSerializer.Serialize(e),
+                CreatedAt = e.OccurredOn
             }).ToList();
 
-            // 4. Add to the DbContext in the same transaction
             context.Set<OutboxMessage>().AddRange(outboxMessages);
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
     }
 }
