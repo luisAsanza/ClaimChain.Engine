@@ -1,0 +1,21 @@
+using System.Security.Claims;
+using ClaimsEngine.Infra.Data.Outbox;
+using Microsoft.EntityFrameworkCore;
+
+namespace ClaimsEngine.Infra.Data.Persistence
+{
+    public class ClaimDbContext : DbContext
+    {
+        public ClaimDbContext(DbContextOptions<ClaimDbContext> options) : base(options)
+        {
+        }
+
+        public DbSet<Claim> Claims { get; set; }
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ClaimDbContext).Assembly);
+        }
+    }
+}

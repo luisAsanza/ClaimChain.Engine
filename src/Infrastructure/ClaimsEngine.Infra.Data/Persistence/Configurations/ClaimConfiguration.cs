@@ -3,7 +3,7 @@ using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ClaimsEngine.Infra.Data.Configurations
+namespace ClaimsEngine.Infra.Data.Persistence.Configurations
 {
     internal sealed class ClaimConfiguration : IEntityTypeConfiguration<Claim>
     {
