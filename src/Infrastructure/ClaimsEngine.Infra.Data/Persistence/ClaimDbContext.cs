@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
 using ClaimsEngine.Infra.Data.Outbox;
 using Microsoft.EntityFrameworkCore;
 
