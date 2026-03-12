@@ -1,6 +1,5 @@
 using ClaimsEngine.Application.Abstractions;
 using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
-using MediatR;
 
 namespace ClaimsEngine.Application.Features.Claims.Commands
 {
