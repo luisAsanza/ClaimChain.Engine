@@ -1,6 +1,6 @@
 using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
 
-namespace ClaimsEngine.Application.Interfaces
+namespace ClaimsEngine.Application.Abstractions
 {
     public interface IClaimRepository
     {

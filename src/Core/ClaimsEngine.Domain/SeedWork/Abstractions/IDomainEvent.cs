@@ -1,4 +1,4 @@
-namespace ClaimsEngine.Domain.SeedWork;
+namespace ClaimsEngine.Domain.SeedWork.Abstractions;
 public interface IDomainEvent
 {
     Guid EventId { get; }

@@ -1,5 +1,5 @@
 using ClaimsEngine.Domain.Aggregates.ClaimAggregate.Events;
-using ClaimsEngine.Domain.SeedWork;
+using ClaimsEngine.Domain.SeedWork.Abstractions;
 
 namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate
 {
@@ -40,7 +40,14 @@ namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate
         }
         #endregion
         
-        private Claim (Guid correlationId, string claimNumber, string subscriberId, string payerId, string providerNpi, Patient patient, Insured insured)
+        private Claim (Guid correlationId, 
+            string claimNumber, 
+            string subscriberId, 
+            string payerId, 
+            string providerNpi, 
+            Patient patient, 
+            Insured insured, 
+            DateTimeOffset utcNow)
         {
             if (string.IsNullOrWhiteSpace(claimNumber))
                 throw new ArgumentException("Claim number is required", nameof(claimNumber));
@@ -61,6 +68,8 @@ namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate
             SubscriberId = subscriberId.Trim();
             PayerId = payerId.Trim();
             ProviderNpi = providerNpi.Trim();
+            CreatedAt = utcNow;
+            UpdatedAt = utcNow;
             Status = ClaimStatus.Draft;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
@@ -68,19 +77,26 @@ namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate
             Insured = insured;
         }
 
-        public static Claim Create(Guid correlationId, string claimNumber, string subscriberId, string payerId, string providerNpi, Patient patient, Insured insured)
+        public static Claim Create(Guid correlationId, 
+            string claimNumber, 
+            string subscriberId, 
+            string payerId, 
+            string providerNpi, 
+            Patient patient, 
+            Insured insured,
+            DateTimeOffset utcNow)
         {
-            return new Claim(correlationId, claimNumber, subscriberId, payerId, providerNpi, patient, insured);
+            return new Claim(correlationId, claimNumber, subscriberId, payerId, providerNpi, patient, insured, utcNow);
         }
 
-        public void AddLineItem(string description, decimal amount)
+        public void AddLineItem(string description, decimal amount, DateTimeOffset utcNow)
         {
             var lineItem = new LineItem(description, amount);
             _lineItems.Add(lineItem);
-            UpdatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = utcNow;
         }
 
-        public void Submit()
+        public void Submit(DateTimeOffset utcNow)
         {
             if (Status != ClaimStatus.Draft)
                 throw new InvalidOperationException(
@@ -91,7 +107,7 @@ namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate
                 throw new InvalidOperationException($"Cannot submit claim {Id}. At least one line item is required.");
 
             Status = ClaimStatus.Submitted;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = utcNow;
 
             // Raise domain event
             var domainEvent = new ClaimSubmittedDomainEvent(Id, CorrelationId);

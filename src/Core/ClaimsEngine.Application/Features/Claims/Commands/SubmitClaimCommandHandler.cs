@@ -1,19 +1,21 @@
-using ClaimsEngine.Application.Interfaces;
+using ClaimsEngine.Application.Abstractions;
 using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
 using MediatR;
 
 namespace ClaimsEngine.Application.Features.Claims.Commands
 {
-    public sealed class SubmitClaimCommandHandler : IRequestHandler<SubmitClaimCommand, Guid>
+    public sealed class SubmitClaimCommandHandler : CommandHandler<SubmitClaimCommand, Guid>
     {
         private readonly IClaimRepository _claimRepository;
+        private readonly TimeProvider _timeProvider;
 
-        public SubmitClaimCommandHandler(IClaimRepository claimRepository)
+        public SubmitClaimCommandHandler(IClaimRepository claimRepository, TimeProvider timeProvider)
         {
             _claimRepository = claimRepository;
+            _timeProvider = timeProvider;
         }
 
-        public async Task<Guid> Handle(SubmitClaimCommand request, CancellationToken cancellationToken)
+        public override async Task<Guid> Handle(SubmitClaimCommand request, CancellationToken cancellationToken)
         {
             // 1. Check if claim number already exists
             if (await _claimRepository.ExistsByClaimNumberAsync(request.ClaimNumber, cancellationToken))
@@ -33,16 +35,17 @@ namespace ClaimsEngine.Application.Features.Claims.Commands
                 request.PayerId,
                 request.ProviderNpi,
                 patient,
-                insured);
+                insured,
+                _timeProvider.GetUtcNow());
 
             // 4. Add line items to claim
             foreach (var lineItemDto in request.LineItems)
             {
-                claim.AddLineItem(lineItemDto.Description, lineItemDto.Amount);
+                claim.AddLineItem(lineItemDto.Description, lineItemDto.Amount, _timeProvider.GetUtcNow());
             }
 
             // 5. Execute the State Transition
-            claim.Submit();
+            claim.Submit(_timeProvider.GetUtcNow());
 
             // 6. Persist the Aggregate Root
             await _claimRepository.AddAsync(claim, cancellationToken);

@@ -1,4 +1,4 @@
-using ClaimsEngine.Domain.SeedWork;
+using ClaimsEngine.Domain.SeedWork.Abstractions;
 
 namespace ClaimsEngine.Domain.Aggregates.ClaimAggregate.Events;
 

@@ -1,6 +1,4 @@
-using System;
-
-namespace ClaimsEngine.Application.Features.Claims.Commands;
+namespace ClaimsEngine.Application.Features.Claims.DTOs;
 
 public sealed record LineItemDto(
     string Description,

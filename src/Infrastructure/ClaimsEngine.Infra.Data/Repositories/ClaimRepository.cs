@@ -1,4 +1,4 @@
-using ClaimsEngine.Application.Interfaces;
+using ClaimsEngine.Application.Abstractions;
 using ClaimsEngine.Domain.Aggregates.ClaimAggregate;
 using ClaimsEngine.Infra.Data.Persistence;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-using ClaimsEngine.Domain.SeedWork;
+using ClaimsEngine.Domain.SeedWork.Abstractions;
 using ClaimsEngine.Infra.Data.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

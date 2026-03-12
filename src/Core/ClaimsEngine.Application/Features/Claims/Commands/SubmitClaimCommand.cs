@@ -1,4 +1,5 @@
-using MediatR;
+using ClaimsEngine.Application.Features.Claims.DTOs;
+using ClaimsEngine.Application.Abstractions;
 
 namespace ClaimsEngine.Application.Features.Claims.Commands;
 
@@ -11,5 +12,5 @@ public record SubmitClaimCommand(
     PatientDto Patient,
     InsuredDto Insured,
     List<LineItemDto> LineItems
-) : IRequest<Guid>;
+) : ICommand<Guid>;
 
